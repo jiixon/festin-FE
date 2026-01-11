@@ -10,7 +10,7 @@ import { onMessageListener } from '@/lib/firebase';
 export default function NotificationHandler() {
   useEffect(() => {
     // 포그라운드 메시지 리스너 설정
-    const unsubscribe = onMessageListener()
+    onMessageListener()
       .then((payload: any) => {
         if (!payload) return;
 
@@ -38,13 +38,6 @@ export default function NotificationHandler() {
       .catch((err: unknown) => {
         console.error('Error in foreground message listener:', err);
       });
-
-    return () => {
-      // Cleanup if needed
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
-      }
-    };
   }, []);
 
   return null; // UI를 렌더링하지 않는 컴포넌트

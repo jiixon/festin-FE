@@ -16,7 +16,10 @@ export default function Header() {
     <header className="bg-black border-b border-neutral-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1
+            className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent cursor-pointer"
+            onClick={() => router.push('/booths')}
+          >
             Festin
           </h1>
           {user && user.role === 'STAFF' && (

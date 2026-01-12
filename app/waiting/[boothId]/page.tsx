@@ -99,7 +99,6 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
     );
   }
 
-  const pollingInterval = getPollingInterval(waiting.position);
   const isNearTurn = waiting.position <= 5;
   const isCalled = waiting.status === 'CALLED';
   const isEntered = waiting.status === 'ENTERED';
@@ -194,17 +193,13 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
             </div>
           )}
 
-          <div className="text-center text-xs text-neutral-600 mb-6">
-            자동 갱신 중 (약 {pollingInterval / 1000}초마다)
-          </div>
-
           <div className="space-y-3">
             <Button
               fullWidth
               variant="secondary"
               onClick={loadPosition}
             >
-              수동 새로고침
+              🔄 새로고침
             </Button>
 
             <Button

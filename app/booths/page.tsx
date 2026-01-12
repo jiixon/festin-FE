@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Booth } from '@/types';
 import { boothApi } from '@/lib/api/booth';
+import { waitingApi } from '@/lib/api/waiting';
 import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
 import Card from '@/components/ui/Card';
@@ -14,6 +15,7 @@ export default function BoothsPage() {
   const router = useRouter();
   const { user, initAuth } = useAuthStore();
   const [booths, setBooths] = useState<Booth[]>([]);
+  const [myWaitingBoothIds, setMyWaitingBoothIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,14 +29,24 @@ export default function BoothsPage() {
   }, [user, router]);
 
   useEffect(() => {
-    const loadBooths = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         console.log('Loading booths...');
         console.log('AccessToken in localStorage:', localStorage.getItem('accessToken'));
         console.log('User from store:', user);
-        const data = await boothApi.getBooths();
-        setBooths(data);
+
+        // 부스 목록과 내 대기 목록을 병렬로 불러오기
+        const [boothsData, myWaitings] = await Promise.all([
+          boothApi.getBooths(),
+          waitingApi.getMyWaitings().catch(() => []) // 로그인 안 했으면 빈 배열
+        ]);
+
+        setBooths(boothsData);
+
+        // 내가 대기 중인 부스 ID 목록 저장
+        const waitingIds = new Set(myWaitings.map(w => w.boothId));
+        setMyWaitingBoothIds(waitingIds);
       } catch (err) {
         console.error('Failed to load booths:', err);
         setBooths([]);
@@ -43,7 +55,7 @@ export default function BoothsPage() {
       }
     };
 
-    loadBooths();
+    loadData();
   }, [user]);
 
   if (loading) return <Loading />;
@@ -62,12 +74,21 @@ export default function BoothsPage() {
           {booths.map((booth) => {
             const isOpen = booth.status === 'OPEN';
             const isBusy = booth.totalWaiting > 50;
+            const isWaiting = myWaitingBoothIds.has(booth.boothId);
 
             return (
               <Card
                 key={booth.boothId}
-                hover={isOpen}
-                onClick={() => isOpen && router.push(`/booths/${booth.boothId}`)}
+                hover={isOpen && !isWaiting}
+                onClick={() => {
+                  if (isWaiting) {
+                    // 이미 대기 중이면 내 순번 페이지로
+                    router.push(`/waiting/${booth.boothId}`);
+                  } else if (isOpen) {
+                    // 아니면 부스 상세 페이지로
+                    router.push(`/booths/${booth.boothId}`);
+                  }
+                }}
                 className={!isOpen ? 'opacity-50' : ''}
               >
                 <div className="flex items-start justify-between">
@@ -101,16 +122,22 @@ export default function BoothsPage() {
                   </div>
 
                   <div className="flex flex-col items-end gap-2">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        isOpen
-                          ? 'bg-green-900/30 text-green-400 border border-green-800'
-                          : 'bg-neutral-800 text-neutral-500 border border-neutral-700'
-                      }`}
-                    >
-                      {isOpen ? '운영 중' : '마감'}
-                    </span>
-                    {isOpen && isBusy && (
+                    {isWaiting ? (
+                      <span className="text-xs px-2 py-1 rounded-full bg-purple-900/30 text-purple-400 border border-purple-800">
+                        대기 중
+                      </span>
+                    ) : (
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          isOpen
+                            ? 'bg-green-900/30 text-green-400 border border-green-800'
+                            : 'bg-neutral-800 text-neutral-500 border border-neutral-700'
+                        }`}
+                      >
+                        {isOpen ? '운영 중' : '마감'}
+                      </span>
+                    )}
+                    {isOpen && isBusy && !isWaiting && (
                       <span className="text-xs px-2 py-1 rounded-full bg-orange-900/30 text-orange-400 border border-orange-800">
                         혼잡
                       </span>

@@ -20,6 +20,7 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
   const [canceling, setCanceling] = useState(false);
   const [error, setError] = useState('');
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
 
   // 동적 폴링 주기 계산 (순번에 따라)
   const getPollingInterval = (position: number): number => {
@@ -43,6 +44,18 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
 
       setWaiting(myWaiting);
       setLastUpdate(new Date());
+
+      // 호출된 상태이고 calledAt이 있으면 타이머 계산
+      if (myWaiting.status === 'CALLED' && myWaiting.calledAt) {
+        const calledTime = new Date(myWaiting.calledAt).getTime();
+        const now = Date.now();
+        const elapsedSeconds = Math.floor((now - calledTime) / 1000);
+        const remaining = Math.max(0, 300 - elapsedSeconds); // 5분(300초) - 경과 시간
+        setRemainingSeconds(remaining);
+      } else {
+        setRemainingSeconds(null);
+      }
+
       setError('');
       setLoading(false);
     } catch (err) {
@@ -65,6 +78,20 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
 
     return () => clearInterval(timer);
   }, [waiting, loadPosition]);
+
+  // 타이머 카운트다운 (1초마다)
+  useEffect(() => {
+    if (remainingSeconds === null || remainingSeconds <= 0) return;
+
+    const timer = setInterval(() => {
+      setRemainingSeconds(prev => {
+        if (prev === null || prev <= 0) return null;
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [remainingSeconds]);
 
   const handleCancel = async () => {
     if (!window.confirm('정말 대기를 취소하시겠습니까?')) return;
@@ -135,7 +162,18 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
               </div>
               <p className="text-2xl font-bold text-green-400 mb-4">🎉 호출되었습니다!</p>
               <p className="text-neutral-400">부스로 이동하여 입장해주세요</p>
-              <p className="text-sm text-orange-400 mt-2">5분 이내 입장하지 않으면 노쇼 처리됩니다</p>
+
+              {remainingSeconds !== null && remainingSeconds > 0 ? (
+                <div className="mt-4 bg-orange-900/30 border border-orange-800 rounded-lg p-4">
+                  <p className="text-sm text-orange-400 mb-2">⏱️ 남은 시간</p>
+                  <p className="text-3xl font-bold text-orange-300">
+                    {Math.floor(remainingSeconds / 60)}:{String(remainingSeconds % 60).padStart(2, '0')}
+                  </p>
+                  <p className="text-xs text-orange-500 mt-2">시간 내 입장하지 않으면 노쇼 처리됩니다</p>
+                </div>
+              ) : (
+                <p className="text-sm text-orange-400 mt-2">5분 이내 입장하지 않으면 노쇼 처리됩니다</p>
+              )}
             </div>
           )}
 

@@ -38,6 +38,8 @@ export interface Waiting {
   estimatedWaitTime: number;
   registeredAt: string;
   status?: WaitingStatus;
+  calledAt?: string; // 호출된 시간 (ISO 8601 형식)
+  remainingTime?: number; // 노쇼까지 남은 시간(초)
 }
 
 // 대기 이력 (호출 후)

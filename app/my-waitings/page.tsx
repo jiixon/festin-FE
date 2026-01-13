@@ -58,15 +58,27 @@ export default function MyWaitingsPage() {
         <div className="grid gap-4 mb-6">
           {waitings.map((waiting) => {
             const isNearTurn = waiting.position <= 5;
+            const isCalled = waiting.status === 'CALLED';
+            const isEntered = waiting.status === 'ENTERED';
 
             return (
               <Card
                 key={waiting.boothId}
                 hover
                 onClick={() => router.push(`/waiting/${waiting.boothId}`)}
-                className={isNearTurn ? 'border-2 border-orange-600' : ''}
+                className={isCalled ? 'border-2 border-green-600' : isNearTurn ? 'border-2 border-orange-600' : ''}
               >
-                {isNearTurn && (
+                {isCalled && (
+                  <div className="bg-green-900/30 text-green-400 text-xs font-semibold px-3 py-1.5 rounded mb-3 inline-block border border-green-800">
+                    🎉 호출되었습니다! 입장하세요
+                  </div>
+                )}
+                {isEntered && (
+                  <div className="bg-blue-900/30 text-blue-400 text-xs font-semibold px-3 py-1.5 rounded mb-3 inline-block border border-blue-800">
+                    ✨ 체험 중
+                  </div>
+                )}
+                {!isCalled && !isEntered && isNearTurn && (
                   <div className="bg-orange-900/30 text-orange-400 text-xs font-semibold px-3 py-1.5 rounded mb-3 inline-block border border-orange-800">
                     ● 곧 차례입니다!
                   </div>
@@ -79,12 +91,20 @@ export default function MyWaitingsPage() {
                     </h3>
 
                     <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                          {waiting.position}
-                        </span>
-                        <span className="text-neutral-400">번째 대기 중</span>
-                      </div>
+                      {isCalled || isEntered ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            {isCalled ? '입장' : '체험중'}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            {waiting.position}
+                          </span>
+                          <span className="text-neutral-400">번째 대기 중</span>
+                        </div>
+                      )}
 
                       <div className="flex items-center gap-4 text-neutral-500">
                         <span>전체 <span className="text-white">{waiting.totalWaiting}</span>명</span>
@@ -105,7 +125,7 @@ export default function MyWaitingsPage() {
 
                   <div className="text-right">
                     <span className="text-2xl">
-                      {isNearTurn ? '○' : '●'}
+                      {isCalled ? '🔔' : isEntered ? '✨' : isNearTurn ? '○' : '●'}
                     </span>
                   </div>
                 </div>

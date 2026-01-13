@@ -15,7 +15,7 @@ self.addEventListener('message', (event) => {
       firebaseApp = firebase.initializeApp(event.data.config);
       const messaging = firebase.messaging();
 
-      messaging.onBackgroundMessage((payload) => {
+      messaging.setBackgroundMessageHandler((payload) => {
         console.log('Received background message:', payload);
 
         const notificationTitle = payload.notification?.title || '새로운 알림';
@@ -28,12 +28,13 @@ self.addEventListener('message', (event) => {
           data: payload.data,
         };
 
-        self.registration.showNotification(notificationTitle, notificationOptions);
+        return self.registration.showNotification(notificationTitle, notificationOptions);
       });
     }
   }
 });
 
+// 알림 클릭 이벤트 처리
 // 알림 클릭 이벤트 처리
 self.addEventListener('notificationclick', (event) => {
   console.log('Notification clicked:', event);

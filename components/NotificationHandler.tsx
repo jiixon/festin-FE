@@ -59,7 +59,7 @@ export default function NotificationHandler() {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, []);
+  }, [user, fcmInitialized]);
 
   return null; // UI를 렌더링하지 않는 컴포넌트
 }

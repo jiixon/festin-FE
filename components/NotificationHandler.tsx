@@ -1,16 +1,34 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { onMessageListener } from '@/lib/firebase';
+import { useAuthStore } from '@/lib/stores/authStore';
+import { initializeFCM } from '@/lib/fcm';
 
 /**
  * 포그라운드 알림 핸들러
  * 앱이 실행 중일 때 받는 알림을 처리합니다.
  */
 export default function NotificationHandler() {
+  const { user } = useAuthStore();
+  const [fcmInitialized, setFcmInitialized] = useState(false);
+
   useEffect(() => {
     // 컴포넌트 마운트 확인 로그
     console.log('NotificationHandler mounted. Waiting for foreground messages...');
+
+    // 로그인된 상태라면 FCM 초기화 시도
+    if (user && !fcmInitialized) {
+      console.log('User is logged in. Initializing FCM...');
+      initializeFCM()
+        .then((success) => {
+          if (success) {
+            console.log('FCM initialized successfully via NotificationHandler');
+            setFcmInitialized(true);
+          }
+        })
+        .catch((err) => console.error('Failed to initialize FCM:', err));
+    }
 
     // 포그라운드 메시지 리스너 설정
     const unsubscribe = onMessageListener((payload: any) => {

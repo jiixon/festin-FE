@@ -28,9 +28,19 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
       appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     };
 
-    // 서비스 워커에 설정 전달
+    // Service Worker가 준비될 때까지 대기
+    await navigator.serviceWorker.ready;
+
+    // 활성화된 서비스 워커가 있는지 확인 (ready가 반환되면 active는 있어야 함)
     if (registration.active) {
+      console.log('Sending Firebase config to Service Worker...');
       registration.active.postMessage({
+        type: 'FIREBASE_CONFIG',
+        config: firebaseConfig,
+      });
+    } else {
+      // 혹시라도 active가 없으면 controller를 통해서라도 시도
+      navigator.serviceWorker.controller?.postMessage({
         type: 'FIREBASE_CONFIG',
         config: firebaseConfig,
       });

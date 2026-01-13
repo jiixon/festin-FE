@@ -11,6 +11,7 @@ let firebaseApp = null;
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'FIREBASE_CONFIG') {
+    console.log('SW: Received Firebase Config', event.data.config);
     if (!firebaseApp) {
       firebaseApp = firebase.initializeApp(event.data.config);
       const messaging = firebase.messaging();

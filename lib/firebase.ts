@@ -59,17 +59,13 @@ export const requestFCMToken = async (): Promise<string | null> => {
 /**
  * 포그라운드 메시지 리스너
  */
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    if (!messaging) {
-      resolve(null);
-      return;
-    }
+export const onMessageListener = (callback: (payload: any) => void) => {
+  if (!messaging) return;
 
-    onMessage(messaging, (payload) => {
-      console.log('Received foreground message:', payload);
-      resolve(payload);
-    });
+  return onMessage(messaging, (payload) => {
+    console.log('Received foreground message:', payload);
+    callback(payload);
   });
+};
 
 export { messaging };

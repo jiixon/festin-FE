@@ -69,4 +69,19 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
+// 디버깅용 raw push 리스너
+self.addEventListener('push', (event) => {
+  console.log('📌 [DEBUG] Raw Push Event Received:', event);
+  if (event.data) {
+    console.log('📌 [DEBUG] Push Data Text:', event.data.text());
+    try {
+      console.log('📌 [DEBUG] Push Data JSON:', event.data.json());
+    } catch (e) {
+      console.log('📌 [DEBUG] Push Data is not JSON');
+    }
+  } else {
+    console.log('📌 [DEBUG] Push Event has no data');
+  }
+});
+
 console.log('FCM Service Worker is ready');

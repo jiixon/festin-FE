@@ -20,6 +20,7 @@ let messaging: ReturnType<typeof getMessaging> | null = null;
 if (typeof window !== 'undefined') {
   isSupported().then((supported) => {
     if (supported) {
+      console.log('Initializing Firebase Messaging...');
       messaging = getMessaging(app);
     }
   });

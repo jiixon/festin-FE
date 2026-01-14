@@ -27,9 +27,9 @@ if (config.apiKey && config.projectId) {
       // 백엔드에서 notification 필드를 보내면 이 핸들러는 실행되지 않을 수 있음 (브라우저가 자동 처리)
       // data-only 메시지일 경우에만 이 코드가 실행됨
 
-      const notificationTitle = payload.notification?.title || '새로운 알림';
+      const notificationTitle = payload.notification?.title || payload.data?.title || '부스 호출';
       const notificationOptions = {
-        body: payload.notification?.body || '',
+        body: payload.notification?.body || payload.data?.body || '',
         icon: '/icon-192.png',
         badge: '/icon-192.png',
         tag: 'festin-notification',

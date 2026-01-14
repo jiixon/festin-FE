@@ -59,9 +59,15 @@ export const authApi = {
 
   // FCM 토큰 등록
   async registerFcmToken(fcmToken: string): Promise<{ success: boolean }> {
-    const response = await apiClient.post<{ success: boolean }>('/api/v1/users/fcm-token', {
-      fcmToken,
-    });
-    return response.data;
+    try {
+      const response = await apiClient.post<{ success: boolean }>('/api/v1/users/fcm-token', {
+        fcmToken,
+      });
+      console.log('✅ FCM Token Register Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ FCM Token Register Error:', error);
+      throw error;
+    }
   },
 };

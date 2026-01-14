@@ -16,7 +16,15 @@ const config = {
 // 설정이 있으면 즉시 초기화
 if (config.apiKey && config.projectId) {
   try {
-    firebase.initializeApp(config);
+    // 이미 초기화된 앱이 있는지 확인
+    if (firebase.apps.length === 0) {
+      console.log('FCM SW: Initializing Firebase App...');
+      firebaseApp = firebase.initializeApp(config);
+    } else {
+      console.log('FCM SW: Reusing existing Firebase App');
+      firebaseApp = firebase.app();
+    }
+
     const messaging = firebase.messaging();
 
     console.log('FCM SW: Initialized with config', config);
@@ -41,6 +49,9 @@ if (config.apiKey && config.projectId) {
     });
   } catch (err) {
     console.error('FCM SW: Initialization failed', err);
+    // 에러 내용을 확실히 보기 위해
+    if (err.code) console.error('Error Code:', err.code);
+    if (err.message) console.error('Error Message:', err.message);
   }
 } else {
   console.warn('FCM SW: No config found in URL parameters');

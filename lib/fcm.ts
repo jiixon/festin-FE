@@ -15,10 +15,7 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
   }
 
   try {
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log('Service Worker registered:', registration);
-
-    // Firebase 설정을 서비스 워커로 전달
+    // Firebase 설정을 쿼리 파라미터로 변환
     const firebaseConfig = {
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
       authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -28,23 +25,11 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
       appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
     };
 
-    // Service Worker가 준비될 때까지 대기
-    await navigator.serviceWorker.ready;
+    const queryParams = new URLSearchParams(firebaseConfig as any).toString();
+    const swUrl = `/firebase-messaging-sw.js?${queryParams}`;
 
-    // 활성화된 서비스 워커가 있는지 확인 (ready가 반환되면 active는 있어야 함)
-    if (registration.active) {
-      console.log('Sending Firebase config to Service Worker...');
-      registration.active.postMessage({
-        type: 'FIREBASE_CONFIG',
-        config: firebaseConfig,
-      });
-    } else {
-      // 혹시라도 active가 없으면 controller를 통해서라도 시도
-      navigator.serviceWorker.controller?.postMessage({
-        type: 'FIREBASE_CONFIG',
-        config: firebaseConfig,
-      });
-    }
+    const registration = await navigator.serviceWorker.register(swUrl);
+    console.log('Service Worker registered with config:', registration);
 
     return registration;
   } catch (error) {

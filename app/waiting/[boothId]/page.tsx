@@ -235,7 +235,13 @@ export default function WaitingPage({ params }: { params: Promise<{ boothId: str
             <Button
               fullWidth
               variant="secondary"
-              onClick={loadPosition}
+              onClick={() => {
+                loadPosition();
+                // 새로고침 버튼 클릭 시 알림 권한 요청 시도 (iOS 대응)
+                import('@/lib/fcm').then(({ initializeFCM }) => {
+                  initializeFCM().catch(console.error);
+                });
+              }}
             >
               🔄 새로고침
             </Button>

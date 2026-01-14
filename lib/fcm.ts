@@ -50,8 +50,8 @@ export const initializeFCM = async (): Promise<boolean> => {
       return false;
     }
 
-    // FCM 토큰 요청
-    const token = await requestFCMToken();
+    // FCM 토큰 요청 (Service Worker 등록 정보 전달)
+    const token = await requestFCMToken(registration);
     if (!token) {
       console.log('Failed to get FCM token');
       return false;

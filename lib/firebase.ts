@@ -29,7 +29,7 @@ if (typeof window !== 'undefined') {
 /**
  * FCM 토큰 요청 및 권한 획득
  */
-export const requestFCMToken = async (): Promise<string | null> => {
+export const requestFCMToken = async (serviceWorkerRegistration?: ServiceWorkerRegistration): Promise<string | null> => {
   try {
     // 브라우저 환경 체크
     if (typeof window === 'undefined' || !messaging) {
@@ -43,6 +43,7 @@ export const requestFCMToken = async (): Promise<string | null> => {
     if (permission === 'granted') {
       const token = await getToken(messaging, {
         vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+        serviceWorkerRegistration: serviceWorkerRegistration,
       });
 
       console.log('FCM Token obtained:', token);

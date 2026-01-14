@@ -1,7 +1,7 @@
 {
   "name": "Festin - 축제 부스 대기열 관리",
   "short_name": "Festin",
-  "gcm_sender_id": "103953800507",
+  "gcm_sender_id": "15692374240",
   "description": "대학 축제 부스 대기열을 편리하게 관리하세요",
   "start_url": "/",
   "display": "standalone",

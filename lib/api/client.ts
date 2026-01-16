@@ -53,30 +53,28 @@ apiClient.interceptors.response.use(
 
     // 401 Unauthorized: 로그아웃 처리
     if (apiError.status === 401) {
-      console.error('⚠️⚠️⚠️ 401 Unauthorized Error ⚠️⚠️⚠️');
-      console.error('URL:', error.config?.url);
-      console.error('Method:', error.config?.method);
-      console.error('Headers:', error.config?.headers);
-      console.error('Request Data:', error.config?.data);
-      console.error('Response:', error.response?.data);
-      console.error('localStorage.userRole:', typeof window !== 'undefined' ? localStorage.getItem('userRole') : null);
-      console.error('localStorage.accessToken:', typeof window !== 'undefined' ? localStorage.getItem('accessToken')?.substring(0, 30) + '...' : null);
+      if (typeof window !== 'undefined') {
+        const userRole = localStorage.getItem('userRole');
 
-      // 디버깅을 위해 리다이렉트 비활성화 (임시)
-      // if (typeof window !== 'undefined') {
-      //   const userRole = localStorage.getItem('userRole');
-      //   localStorage.removeItem('accessToken');
-      //   localStorage.removeItem('userId');
-      //   localStorage.removeItem('nickname');
-      //   localStorage.removeItem('userRole');
+        // 저장된 정보 삭제
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('nickname');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('boothId');
 
-      //   // 스태프는 스태프 로그인으로, 일반 유저는 일반 로그인으로
-      //   if (userRole === 'STAFF') {
-      //     window.location.href = '/auth/staff-login';
-      //   } else {
-      //     window.location.href = '/auth/login';
-      //   }
-      // }
+        // 현재 페이지가 로그인 페이지가 아닌 경우에만 리다이렉트 (무한 루프 방지)
+        const isLoginPage = window.location.pathname.includes('/login');
+        if (!isLoginPage) {
+          alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+          // 스태프는 스태프 로그인으로, 일반 유저는 일반 로그인으로
+          if (userRole === 'STAFF') {
+            window.location.href = '/auth/staff-login';
+          } else {
+            window.location.href = '/auth/login';
+          }
+        }
+      }
     }
 
     return Promise.reject(apiError);

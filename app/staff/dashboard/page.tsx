@@ -10,6 +10,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Loading from '@/components/ui/Loading';
 import { useAuthStore } from '@/lib/stores/authStore';
+import CalledTimer from '@/components/staff/CalledTimer';
 
 export default function StaffDashboardPage() {
   const router = useRouter();
@@ -195,9 +196,8 @@ export default function StaffDashboardPage() {
             </div>
             <div className="w-full bg-neutral-800 rounded-full h-3">
               <div
-                className={`h-3 rounded-full transition-all ${
-                  isFull ? 'bg-gradient-to-r from-red-600 to-orange-600' : 'bg-gradient-to-r from-purple-600 to-pink-600'
-                }`}
+                className={`h-3 rounded-full transition-all ${isFull ? 'bg-gradient-to-r from-red-600 to-orange-600' : 'bg-gradient-to-r from-purple-600 to-pink-600'
+                  }`}
                 style={{ width: `${Math.min(capacityPercent, 100)}%` }}
               />
             </div>
@@ -283,19 +283,18 @@ export default function StaffDashboardPage() {
                         <div className="text-sm text-neutral-500">
                           {waiting.position}번째 • {waiting.status === 'CALLED' ? '호출됨' : '입장함'}
                         </div>
-                        {waiting.status === 'CALLED' && waiting.remainingTime && (
-                          <div className="text-xs text-orange-400 mt-1">
-                            ● {remainingMin}분 {waiting.remainingTime % 60}초 남음
+                        {waiting.status === 'CALLED' && waiting.calledAt && (
+                          <div className="text-xs mt-1">
+                            <CalledTimer calledAt={waiting.calledAt} />
                           </div>
                         )}
                       </div>
 
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          isEntered
+                        className={`text-xs px-2 py-1 rounded-full ${isEntered
                             ? 'bg-green-900/30 text-green-400 border border-green-800'
                             : 'bg-yellow-900/30 text-yellow-400 border border-yellow-800'
-                        }`}
+                          }`}
                       >
                         {isEntered ? '입장 완료' : '호출됨'}
                       </span>

@@ -30,7 +30,6 @@ if (config.apiKey && config.projectId) {
     console.log('FCM SW: Initialized with config', config);
 
     messaging.setBackgroundMessageHandler((payload) => {
-      console.log('Received background message:', payload);
 
       // 백엔드에서 notification 필드를 보내면 이 핸들러는 실행되지 않을 수 있음 (브라우저가 자동 처리)
       // data-only 메시지일 경우에만 이 코드가 실행됨
@@ -80,19 +79,6 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// 디버깅용 raw push 리스너
-self.addEventListener('push', (event) => {
-  console.log('📌 [DEBUG] Raw Push Event Received:', event);
-  if (event.data) {
-    console.log('📌 [DEBUG] Push Data Text:', event.data.text());
-    try {
-      console.log('📌 [DEBUG] Push Data JSON:', event.data.json());
-    } catch (e) {
-      console.log('📌 [DEBUG] Push Data is not JSON');
-    }
-  } else {
-    console.log('📌 [DEBUG] Push Event has no data');
-  }
-});
+
 
 console.log('FCM Service Worker is ready');
